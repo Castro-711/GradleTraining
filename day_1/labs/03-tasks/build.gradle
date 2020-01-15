@@ -28,6 +28,11 @@ task helloFirst {
 }
 
 task printDate {
+    // only completes the task action if that is true
+    // if not getting output change to current day
+    // closure is evaluated at execution time
+    onlyIf { new Date().toString().contains("Wed")}
+
     // groovy automatically has access to java.util
     // this version of groovy has access to java.Time
     // if it was not you could import it here
@@ -35,6 +40,7 @@ task printDate {
         println(new Date())
         println(LocalDateTime.now())
     }
+
     // description can have an '=' - properties syntax
     // single quoted strings are string literals ''
     // double quoted strings allow string interpolation ""
@@ -59,4 +65,10 @@ If two tasks are executed in the same command
 Separating configuration time with run time is crucial in gradle    
 
 For more info on Task go to gradle.org - gradle dsl
+
+If you don't specify a type for your task it is a DefaultTask
+A default task does not have an action
+
+Gradle DSL cannot be used outside of the build file 
+you can add any type of groovy code but becareful not to add business logic
 */
