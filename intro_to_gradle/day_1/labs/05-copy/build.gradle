@@ -4,6 +4,17 @@
        Hint: The rename regex is `"(.*)\\.dat"`.
 */
 
+// only necessary for the archive task below
+plugins {
+    id 'base'
+    // base plugin provides some tasks & conventions to most builds
+    // it provides the clean, check, assemble tasks & more
+}
+
+version = '1.0'
+// version is short for project.version
+// any variable without a qualifier is belong to project
+
 task copyStuff(type: Copy) {
     into("${buildDir}/texts") // groovy interpolation
     from('content') { // default behvaiour means the directory structure is maintained
@@ -43,4 +54,45 @@ task copyStuffPermission(type: Copy) {
         fileMode 0755 // setting permissions
         dirMode 0755 // octal numbers - very important to avoid issues√
     }
+}
+
+/*
+ARCHIVE HANDLING
+
+Task type for each archive type (Zip, Jar, War, Tar)
+    * similar to copy
+        * Archiving: Copying to a directory
+        * Unarching: Copying from a directory
+    
+    * Supports transforming/renaming etc.
+
+    * expanding the archive needs a copy task :/
+
+    * when making an archive you don't really need the into property
+        * files are copied without maintaining file structure by default unlike copy
+
+    * default destination directory for Zip/ Tar 
+        * build/distributions
+
+    * default destination directory for War/ Jar
+        * build/libs
+
+    * base plugin helps to maintain naming conventions
+        * baseName -> project.name
+        * version  -> project.version
+
+*/
+
+// what will the name of the archive be
+task archive(type: Zip) {
+    from('content')
+}
+
+// unzips the archive
+task unpack(type: Copy) { // don't want to do this if the file exists
+    // dependsOn('archive') // another means of protection - must be archived before trying to unpack
+    String archive = "$buildDir/distributions/05-copy-${version}.zip" 
+    onlyIf { file(archive).exists() } // protect against the file not existing to avoid error
+    from zipTree(archive) // remember to wrap it in the zipTree
+    into "$buildDir/unpacked"
 }
