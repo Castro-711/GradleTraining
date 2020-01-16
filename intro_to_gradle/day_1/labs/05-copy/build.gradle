@@ -1,0 +1,98 @@
+/*
+    1. Add a copy task that copies all `*.txt` files under `content` and all files under images into `build/texts` (observe the preserved hierarchy).
+    2. Add a section to the copy task from 1. that also copies all `*.dat` files under `content` and renames them to `*.data`.
+       Hint: The rename regex is `"(.*)\\.dat"`.
+*/
+
+// only necessary for the archive task below
+plugins {
+    id 'base'
+    // base plugin provides some tasks & conventions to most builds
+    // it provides the clean, check, assemble tasks & more
+}
+
+version = '1.0'
+// version is short for project.version
+// any variable without a qualifier is belong to project
+
+task copyStuff(type: Copy) {
+    into("${buildDir}/texts") // groovy interpolation
+    from('content') { // default behvaiour means the directory structure is maintained
+        include '**/*.txt'
+        include '**/*.dat'
+        rename "(.*)\\.dat", '$1.data' // ensure single quotes here to avoid interpolation
+    }
+    from('images')
+    includeEmptyDirs = false // this excludes directories that have files but don't meet above criteria too
+    // this is an example of having being both a method and a property
+    // in this example we are using the property but to use the method we could have done
+    // includeEmptyDirs(false)
+}
+
+/*
+Files can be transformed during a copy task
+    * use filter with certain parameters to acheive this
+
+Files can be renamed during a copy
+    * checkout the samples !!!
+
+You can include file permission within the copy task 
+
+Can use Sync directories - except the target will only contain everything from source
+    * you can use 'preserve' to keep certain existing files in the target
+
+A copy task cannot delete a file
+    * there is a delete task for that.!
+    * has a property to follow symlinks
+    * and many more
+*/
+
+task copyStuffPermission(type: Copy) {
+    into("targetDir")
+    into("bin") {
+        from "src/bin"
+        fileMode 0755 // setting permissions
+        dirMode 0755 // octal numbers - very important to avoid issues√
+    }
+}
+
+/*
+ARCHIVE HANDLING
+
+Task type for each archive type (Zip, Jar, War, Tar)
+    * similar to copy
+        * Archiving: Copying to a directory
+        * Unarching: Copying from a directory
+    
+    * Supports transforming/renaming etc.
+
+    * expanding the archive needs a copy task :/
+
+    * when making an archive you don't really need the into property
+        * files are copied without maintaining file structure by default unlike copy
+
+    * default destination directory for Zip/ Tar 
+        * build/distributions
+
+    * default destination directory for War/ Jar
+        * build/libs
+
+    * base plugin helps to maintain naming conventions
+        * baseName -> project.name
+        * version  -> project.version
+
+*/
+
+// what will the name of the archive be
+task archive(type: Zip) {
+    from('content')
+}
+
+// unzips the archive
+task unpack(type: Copy) { // don't want to do this if the file exists
+    // dependsOn('archive') // another means of protection - must be archived before trying to unpack
+    String archive = "$buildDir/distributions/05-copy-${version}.zip" 
+    onlyIf { file(archive).exists() } // protect against the file not existing to avoid error
+    from zipTree(archive) // remember to wrap it in the zipTree
+    into "$buildDir/unpacked"
+}

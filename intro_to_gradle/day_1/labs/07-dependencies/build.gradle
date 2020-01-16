@@ -1,0 +1,82 @@
+/*
+    1. Execute `gradle dependencies --configuration compileClasspath`
+    2. Note the large dependency graph
+    3. Using the `dependencyInsight` task, determine which version of `hibernate-validator` is used at compile time
+    4. Force version `4.0.0.GA` of `hibernate-validator` and verify the result
+    5. Generate a HTML dependency report
+*/
+
+apply plugin: "java"
+apply plugin: "project-report"
+
+repositories {
+    mavenCentral()
+    maven { url "http://repository.jboss.org/nexus/content/groups/public-jboss/" }
+}
+
+dependencies {
+    implementation "org.jboss.as:jboss-as-jpa:7.1.2.Final"
+    // implementation "org.company:some-lib:2.+" dynamic dependencies - not recommended
+    // best off stating the version correctly for everyones sake
+    // gambling there will be no breaking changes in the latest release using +
+}
+
+/*
+Dependencies can be either:
+    * managed - Group/Module/Version - have identity and possibly metadata
+    * unmanaged - uses a fileTree - deps are just annonymous files
+        * convenient for migration
+
+    * dependencies are assigned to configurations
+
+    * Transitive Dependencies
+        * use default strategy (highest version number)
+        * component metadata rules
+        * Dependency resolution rules
+        * 
+
+    * Fail on conflict
+*/
+
+configurations {
+    implementation {
+        resolutionStrategy.failOnVersionConflict()
+
+        // Disable Transitives
+        // per dependency
+        transitive = false
+
+        // can force versioning
+        resolutionStrategy.force 'org.springframework:spring-core:4.0.5.RELEASE'
+    }
+
+    // configuration wide 
+    // implementation.transitive = false
+
+    all {
+        // can use all block to set the 
+
+        // a combination of force & exclude usually help sort dependency issues
+        resolutionStrategy.force 'org.hibernate:hibernate-validator:4.0.0.GA'
+    }
+}
+
+// controlling updates
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 4, "hours"
+    resolutionStrategy.cacheDynamicVersionsFor 10, "minutes"
+}
+
+/*
+    --offline -> don't look for updates, regardless of TTL
+    --refresh-dependencies -> 
+
+    Dependency Reports
+        * view dependency graph
+            * gradle dependencies [--configuration <<name>>]
+
+        * view a dependency in the graph
+            * gradle dependencyInsight --dependency «name» [--configuration «name»]
+
+
+*/ 
