@@ -1,0 +1,74 @@
+/*
+    1. Add a `helloWorld` task that prints 'hello world'.
+    2. Execute this task.
+    3. Add a `printDate` task that prints out the current date.
+    4. Execute the `printDate` task, abbreviating its name.
+    5. Execute `gradle tasks --all`.
+    6. Add meaningful descriptions to the tasks.
+       Hint: http://www.gradle.org/docs/current/dsl/org.gradle.api.Task.html#org.gradle.api.Task:description
+    7. Execute `gradle tasks` again.
+*/
+
+task helloWorld {
+    description = 'Prints a friendly greeting' // string literal
+    group = 'Welcome' // allows you to create a new group for the task
+    doLast { // don't forget the actions - to avoid it executing at configuration time
+        println "hello world"
+    }
+}
+
+task helloFirst {
+    doLast {
+        println "World"
+    }
+    doFirst {
+        println "Hello"
+    }
+    // we can see when each is declared does not matter
+}
+
+task printDate {
+    // only completes the task action if that is true
+    // if not getting output change to current day
+    // closure is evaluated at execution time
+    onlyIf { new Date().toString().contains("Wed")}
+
+    // groovy automatically has access to java.util
+    // this version of groovy has access to java.Time
+    // if it was not you could import it here
+    doFirst {
+        println(new Date())
+        println(LocalDateTime.now())
+    }
+
+    // description can have an '=' - properties syntax
+    // single quoted strings are string literals ''
+    // double quoted strings allow string interpolation ""
+    description "Prints the current Date"
+
+    // group allows you to create a new task category or join an existing one
+    group 'Help'
+}
+
+/*
+Tasks have actions
+doLast & doFirst can be used to decorate the action - these are methods in class Task
+
+doFirst - executed before the task action 
+doLast  - executed after the task action
+both are executed at runtime
+
+If two tasks are executed in the same command
+    * 'gradle helloWorld helloFirst'
+    * they will execute in that sequence unless explicitly stating dependencies between tasks
+
+Separating configuration time with run time is crucial in gradle    
+
+For more info on Task go to gradle.org - gradle dsl
+
+If you don't specify a type for your task it is a DefaultTask
+A default task does not have an action
+
+Gradle DSL cannot be used outside of the build file 
+you can add any type of groovy code but becareful not to add business logic
+*/
