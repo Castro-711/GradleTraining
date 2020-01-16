@@ -13,6 +13,9 @@ task copyStuff(type: Copy) {
     }
     from('images')
     includeEmptyDirs = false // this excludes directories that have files but don't meet above criteria too
+    // this is an example of having being both a method and a property
+    // in this example we are using the property but to use the method we could have done
+    // includeEmptyDirs(false)
 }
 
 /*
@@ -21,4 +24,23 @@ Files can be transformed during a copy task
 
 Files can be renamed during a copy
     * checkout the samples !!!
+
+You can include file permission within the copy task 
+
+Can use Sync directories - except the target will only contain everything from source
+    * you can use 'preserve' to keep certain existing files in the target
+
+A copy task cannot delete a file
+    * there is a delete task for that.!
+    * has a property to follow symlinks
+    * and many more
 */
+
+task copyStuffPermission(type: Copy) {
+    into("targetDir")
+    into("bin") {
+        from "src/bin"
+        fileMode 0755
+        dirMode 0755 // octal numbers - very important to avoid issues√
+    }
+}
