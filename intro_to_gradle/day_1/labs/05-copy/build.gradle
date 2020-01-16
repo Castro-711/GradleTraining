@@ -1,0 +1,24 @@
+/*
+    1. Add a copy task that copies all `*.txt` files under `content` and all files under images into `build/texts` (observe the preserved hierarchy).
+    2. Add a section to the copy task from 1. that also copies all `*.dat` files under `content` and renames them to `*.data`.
+       Hint: The rename regex is `"(.*)\\.dat"`.
+*/
+
+task copyStuff(type: Copy) {
+    into("${buildDir}/texts") // groovy interpolation
+    from('content') { // default behvaiour means the directory structure is maintained
+        include '**/*.txt'
+        include '**/*.dat'
+        rename "(.*)\\.dat", '$1.data' // ensure single quotes here to avoid interpolation
+    }
+    from('images')
+    includeEmptyDirs = false // this excludes directories that have files but don't meet above criteria too
+}
+
+/*
+Files can be transformed during a copy task
+    * use filter with certain parameters to acheive this
+
+Files can be renamed during a copy
+    * checkout the samples !!!
+*/
