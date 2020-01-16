@@ -1,0 +1,77 @@
+/*
+1. Execute `gradle tasks` to see which tasks are available.
+2. Build the Jar archive and try to find it.
+3. Configure the `jar` task to add an entry named `Implementation-Version` to the Jar manifest. Set the entry's value to the project version.
+4. Edit the source code of a test to make it fail, execute the project's tests, and check the HTML test report.
+5. Configure the `test` task to run tests in parallel (hint: use the `maxParallelForks` setting).
+6. Move the sources from `src/main/java` to `java`, and reconfigure the `main` source set accordingly.
+*/
+
+// apply plugin: "java" -- old style
+plugins {
+    id 'java' // java-library has much of its functionality included in java
+}
+
+// find the documention for these attributes in Project class
+// there is no qualifier to the left and that is how you know !!!
+// ext - is visible throughout the entire heirarchy and it is project.ext -- extensions
+group = "my.company"
+description = "My Java Library"
+version = "1.0"
+
+// sourceSets lets you describe the file structure for the code
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+    test {
+        java {
+            srcDir 'test'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "commons-collections:commons-collections:3.2"
+    testImplementation "junit:junit:4.11"
+}
+
+jar {
+    // add logic here
+    manifest {
+        attributes("Implementation-Title": "Java Gradle Project",
+                   "Implementation-Version": project.version)
+    }
+}
+
+/*
+gradle jar --dry-run -- shows the tasks that will be executed
+-m is the abbreviation for --dry-run
+
+gradle jar --console=plain -- shows the tasks as they are executed
+    
+
+*/
+
+task unpack(type: Copy) {
+    from zipTree("${buildDir}/libs/${project.name}-${version}.jar")
+    into "$buildDir/expanded"
+}
+
+/*
+Execute Tests in Parrallel with 
+    * maxParallelForks - defaults to 1
+*/
+test {
+    // maxParallelForks = 8
+    int processors = Runtime.runtime.availableProcessors()
+    println "number of processors $processors"
+    maxParallelForks = processors
+
+}
