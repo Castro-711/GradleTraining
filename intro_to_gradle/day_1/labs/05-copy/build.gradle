@@ -40,7 +40,7 @@ task copyStuffPermission(type: Copy) {
     into("targetDir")
     into("bin") {
         from "src/bin"
-        fileMode 0755
+        fileMode 0755 // setting permissions
         dirMode 0755 // octal numbers - very important to avoid issues√
     }
 }
