@@ -1,0 +1,3 @@
+.DS_Store
+# essential for avoiding your hostname being exposed to the public on github when you build with tests
+build/ 
